@@ -1,0 +1,10 @@
+A : 28
+Z : 14
+
+methods: 
+ - ["ibe", "data/Si/migdal/ibe.dat"]
+ 
+
+nuclear_datasets:
+ - jendl40 : ["data/Si/nuclear/Si28_SIG_jendl40.json", "data/Si/nuclear/Si28_DA_jendl40.txt"]
+ 
