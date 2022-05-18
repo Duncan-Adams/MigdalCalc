@@ -56,7 +56,7 @@ def get_p_n_Si(n):
         return p_n
     return get_p_n_Si_gauss(n)
 
-#Fano smearing for the crude method
+#Fano smearing for the binned method
 def Fano_smearing(bins, hist, F, nsig = 5):
     N_e_low = bins[0]
     N_e_hi = bins[-1]
@@ -89,65 +89,12 @@ def Fano_smearing(bins, hist, F, nsig = 5):
         smeared_hist = np.add(smeared_hist, smear)
         
     return smeared_bins, smeared_hist
-
-
-def fixed_angle_elastic_spectrum(migdal_data, En, angle, e0, F, Y, flux=1, fano=True):
-    A = migdal_data.A
-    c = np.cos(angle*np.pi/180)
-    E0 = (A/(A+1)**2)*En
- 
-    E_el_Q = Y(kin.ER_0(c, En, A))*kin.ER_0(c, En, A)
-    
-    elastic_ct = migdal_data.endf.getDA(En)
-    elastic_xsec = elastic_ct(c)
-    
-    elastic_bins = [np.floor(E_el_Q/e0)]
-    elastic_histo = [flux*elastic_xsec]
-    
-    if(fano == True):
-        fano_bins, fano_hist = Fano_smearing(elastic_bins, elastic_histo, F, nsig=5)
-        return fano_bins, fano_hist
-        
-    return elastic_bins, elastic_histo
-    
-def fixed_angle_elastic_spectrum_moments(migdal_data, En, angle, Y, flux=1):
-    A = migdal_data.A
-    c = np.cos(angle*np.pi/180)
-    E0 = (A/(A+1)**2)*En
-    e0 = 3.8
- 
-    E_el_Q = Y(kin.ER_0(c, En, A))*kin.ER_0(c, En, A)
-    
-    n_e_base = np.floor(max((E_el_Q - 1.2), 0)/e0)
-    n_e_pm = np.floor(10*0.34*np.sqrt(n_e_base))
-    
-    n_e_low = max(n_e_base - n_e_pm, 0)
-    n_e_hi = n_e_base + n_e_pm
-    
-    n_e_bins = np.arange(n_e_low, n_e_hi + 1, 1, dtype=int)
-    n_e_rates = []
-    
-    elastic_ct = migdal_data.endf.getDA(En)
-    elastic_xsec = elastic_ct(c)
-    
-    elastic_rate = flux*elastic_xsec
-    print(elastic_rate)
-    
-    for n_e in n_e_bins:
-        p_n = get_p_n_Si(n_e)
-        rate = elastic_rate*p_n(E_el_Q)
-        if(rate < 1e-12):
-            rate = 0
-        n_e_rates.append(rate)
     
 
-    return n_e_bins, n_e_rates
 #produces the spectrum of electron events in Silicon from a spectrum of ionization energy by chopping the spectrum into bins of 3.8eV
 #and applying fano smearing
-def fixed_angle_electron_spectrum_Si_crude(Eion_spectrum, Y, En, c, A, flux = 1, number_of_bins=20, fano=True):
-    E0 = (A/(A+1)**2)*En
-    # ~ c = np.cos(angle*np.pi/180)
-    ER_el = kin.ER_0(c, E0, A)
+def Si_electron_spectrum_binned(Eion_spectrum, Y, En, c, A, flux = 1, number_of_bins=20, fano=True):
+    ER_el = kin.E_R_elastic(c, A, En)
     e0 = 3.8
     F = 0.119
     
@@ -187,8 +134,8 @@ def fixed_angle_electron_spectrum_Si_crude(Eion_spectrum, Y, En, c, A, flux = 1,
     return n_e_bins, hist
     
 #produces spectrum by integrating against the n electron probabilities from 2004.10709
-def fixed_angle_electron_spectrum_Si_moments(Eion_spectrum, ER_Q, flux=1, number_of_bins = 20, gaussian=False):
-    n_bins = np.arange(0, 1 + number_of_bins, 1)
+def Si_electron_spectrum(Eion_spectrum, ER_Q, flux=1, start_bin=0, number_of_bins=20, gaussian=False):        
+    n_bins = np.arange(start_bin, start_bin + number_of_bins, 1, dtype=int)
     r_bins = []
 
     for n in n_bins:
@@ -197,17 +144,33 @@ def fixed_angle_electron_spectrum_Si_moments(Eion_spectrum, ER_Q, flux=1, number
         else:
             p_n = get_p_n_Si(n)
             
+        
         integrand = lambda E: flux*Eion_spectrum(E)*p_n(E)
-        E_start = max(1.2, ER_Q)
-        E_start = max(E_start, n*3.8 - 5*0.34*np.sqrt(n)*3.8)
-        E_end = n*3.8 + 5*0.34*np.sqrt(n)*3.8
-        #these endpoints are derived essentially as the 5 sigma boundaries for the n_e distributions
-        if(n == 0):
-            E_start = 0
-            E_end = 1.2
+        E_range = np.geomspace(1 + ER_Q, 1000 + ER_Q, 201)
         
-        I, E = integrate.quad(integrand, E_start, E_end, epsrel=1e-3, limit=200)
-        rate = I
+        samples = integrand(E_range)
+
+        I = integrate.trapezoid(samples, E_range)
+
+        r_bins.append(I)
+        
+    return n_bins, r_bins
+
+
+def Si_elastic_electron_spectrum_fixed_angle(ER_Q, Elastic_Rate, start_bin=0, number_of_bins=20, gaussian=False):
+    n_bins = np.arange(start_bin, start_bin + number_of_bins, 1, dtype=int)
+    r_bins = []
+
+    for n in n_bins:
+        if gaussian==True:
+            p_n = get_p_n_Si_gauss(n)
+        else:
+            p_n = get_p_n_Si(n)
+            
+        rate = Elastic_Rate*p_n(ER_Q) #because the elastic spectrum is a delta function at fixed angle
+        if(rate < 1e-10):
+            rate = 0
+        
         r_bins.append(rate)
-        
+    
     return n_bins, r_bins

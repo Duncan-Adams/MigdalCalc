@@ -21,7 +21,11 @@ class migdalcalc():
         
         self.mig = migdal.migdal(migdal_methods, target_directory)
         
-        nuclear_dataset = data['nuclear_datasets'][0][nuclear_data_name]
+        nuclear_dict = dict()
+        for ds in data['nuclear_datasets']:
+            nuclear_dict = nuclear_dict | ds
+            
+        nuclear_dataset = nuclear_dict[nuclear_data_name]
         self.A = data['A']
         
         self.nuc = nuclear.nuclear(self.A, target_directory + nuclear_dataset[0],  target_directory + nuclear_dataset[1])

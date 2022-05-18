@@ -9,4 +9,5 @@ methods:
 
 nuclear_datasets:
  - jendl40 : ["data/Si/nuclear/Si28_SIG_jendl40.json", "data/Si/nuclear/Si28_DA_jendl40.txt"]
+ - jeff33  : ["data/Si/nuclear/Si28_SIG_jeff33.json", "data/Si/nuclear/Si28_DA_jeff33.txt"]
  

@@ -2,6 +2,8 @@
 import numpy as np
 import scipy.interpolate as interp
 
+import os
+
 ####Linhard model###
 def Lindhard_Factor(E_R, Z, A): #lindhard quenching model, see eq (5) of 1801.10159
     g = lambda x: 3*(x**0.15) + 0.7*(x**0.6) + x
@@ -89,37 +91,41 @@ def Y_SI_lo(ER):
     return (0.20*ER - 78.37)/(ER)
 
 
-#takes ER in keV
+#takes ER in eV
 #presnted in https://indico.scc.kit.edu/event/2575/contributions/9684/attachments/4817/7278/Saab_SuperCDMS_Yield_EXCESS2022.pdf
-def Y_oscura(ER):
-    return 0.026*ER**(0.267)
+def Y_Si_oscura(ER):
+    E_keV = ER*1e-3
+    return 0.026*E_keV**(0.267)
     
 
 
 
 #Sarkis silicon stuff (2001.06503)
-# ~ quenching_cdms_fit = None
-# ~ quenching_sarkis_si = None
+quenching_cdms_fit = None
+quenching_sarkis_si = None
+data_direcctory = os.path.dirname(__file__) + '/../../targets/data/Si/quenching/'
 
-# ~ sarkis_data = np.genfromtxt('../data/Si/quench/sarkis/Si_numeric.csv', delimiter=',')
-# ~ E_R_data = list(zip(*sarkis_data))[0]
-# ~ qf_data = list(zip(*sarkis_data))[1]
-# ~ quenching_sarkis_si = interp.interp1d(E_R_data, qf_data, bounds_error=False, fill_value = 0, kind='linear')
+sarkis_data = np.genfromtxt(data_direcctory + 'Si_sarkis_numeric.csv', delimiter=',')
+E_R_data = list(zip(*sarkis_data))[0]
+qf_data = list(zip(*sarkis_data))[1]
+quenching_sarkis_si = interp.interp1d(E_R_data, qf_data, bounds_error=False, fill_value = 0, kind='linear')
 
-# ~ cdms_data = np.genfromtxt('../data/Si/quench/sarkis/cdms.csv', delimiter=',')
-# ~ E_R_data = list(zip(*cdms_data))[0]
-# ~ qf_data = list(zip(*cdms_data))[1]
-# ~ quenching_cdms_fit = interp.interp1d(E_R_data, qf_data, bounds_error=False, fill_value = 0, kind='linear')
+cdms_data = np.genfromtxt(data_direcctory + 'cdms.csv', delimiter=',')
+E_R_data = list(zip(*cdms_data))[0]
+qf_data = list(zip(*cdms_data))[1]
+quenching_cdms_fit = interp.interp1d(E_R_data, qf_data, bounds_error=False, fill_value = 0, kind='linear')
 
-# ~ def Y_SI_sarkis(ER):
-    # ~ if(ER > quenching_sarkis_si.x[-1]):
-        # ~ return Lindhard_Factor(ER, 14, 28)
+def Y_Si_sarkis(ER):
+    E_keV = ER*1e-3
+    if(E_keV > quenching_sarkis_si.x[-1]):
+        return Lindhard_Factor(E_keV, 14, 28)
     
-    # ~ return quenching_sarkis_si(ER)
+    return quenching_sarkis_si(E_keV)
 
-# ~ def Y_SI_CDMS(ER):
-    # ~ if(ER > quenching_cmds_fit.x[-1]):
-        # ~ return Lindhard_Factor(ER, 14, 28)
+def Y_Si_CDMS(ER):
+    E_keV = ER*1e-3
+    if(E_keV > quenching_cmds_fit.x[-1]):
+        return Lindhard_Factor(E_keV, 14, 28)
         
-    # ~ return quenching_cdms_fit(ER)
+    return quenching_cdms_fit(E_keV)
 
