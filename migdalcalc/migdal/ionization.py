@@ -1,10 +1,11 @@
 #ionization.py - define charge production models
-from migdal import kinematics as kin
-from migdal import energy as en
+from . import kinematics as kin
 import numpy as np
 import scipy.interpolate as interp
 import scipy.integrate as integrate
 import scipy.ndimage as ndi
+
+import os
 
 
 import matplotlib
@@ -14,7 +15,7 @@ import matplotlib.pyplot as plt
 #get the gaussian p_n defined in 2004.10709
 def get_p_n_Si_gauss(n):
     F_inf = 0.119
-    eps_inf = 3.8*1e-3
+    eps_inf = 3.8
 
     norm = np.sqrt(2*np.pi*n*F_inf)
     std_dev = np.sqrt(n*F_inf)*eps_inf
@@ -25,28 +26,29 @@ def get_p_n_Si_gauss(n):
         
     if(n == 0):
         def p_0(E):
-            return 1*np.heaviside(1.2e-3 - E, 1)
+            return 1*np.heaviside(1.2 - E, 1)
         return p_0
     if n == 1:
         def p_1(E):
             E = min(E, 2*eps_inf)
             p_2 = get_p_n_Si_gauss(2)
             p_3 = get_p_n_Si_gauss(3)
-            return (1 - p_2(E) - p_3(E))*np.heaviside(E - 1.2e-3, 1)
+            return (1 - p_2(E) - p_3(E))*np.heaviside(E - 1.2, 1)
         return p_1
         
     return p_n
 
 #for the low energy bins we load the calculations from 2004.10709
 def get_p_n_Si(n):
+    data_file = os.path.dirname(__file__) + '/../../targets/data/Si/ionization/p0K.dat'
+    
     if(n == 0):
         def p_0(E):
-            return 1*np.heaviside(1.2e-3 - E, 1)
+            return 1*np.heaviside(1.2 - E, 1)
         return p_0
-    if(n <= 11):
-        prob_tab = np.genfromtxt('../data/Si/ionization/p0K.dat')
+    if(n <= 10):
+        prob_tab = np.genfromtxt(data_file)
         energies = list(zip(*prob_tab))[0]
-        energies = np.multiply(energies, 1e-3)
         probs = list(zip(*prob_tab))[n]
         
         p_n = interp.interp1d(energies, probs, bounds_error=False, fill_value=0, kind='quadratic')
@@ -112,11 +114,11 @@ def fixed_angle_elastic_spectrum_moments(migdal_data, En, angle, Y, flux=1):
     A = migdal_data.A
     c = np.cos(angle*np.pi/180)
     E0 = (A/(A+1)**2)*En
-    e0 = 3.8e-3
+    e0 = 3.8
  
     E_el_Q = Y(kin.ER_0(c, En, A))*kin.ER_0(c, En, A)
     
-    n_e_base = np.floor(max((E_el_Q - 1.2e-3), 0)/e0)
+    n_e_base = np.floor(max((E_el_Q - 1.2), 0)/e0)
     n_e_pm = np.floor(10*0.34*np.sqrt(n_e_base))
     
     n_e_low = max(n_e_base - n_e_pm, 0)
@@ -134,7 +136,7 @@ def fixed_angle_elastic_spectrum_moments(migdal_data, En, angle, Y, flux=1):
     for n_e in n_e_bins:
         p_n = get_p_n_Si(n_e)
         rate = elastic_rate*p_n(E_el_Q)
-        if(rate < 1e-2):
+        if(rate < 1e-12):
             rate = 0
         n_e_rates.append(rate)
     
@@ -146,14 +148,14 @@ def fixed_angle_electron_spectrum_Si_crude(Eion_spectrum, Y, En, c, A, flux = 1,
     E0 = (A/(A+1)**2)*En
     # ~ c = np.cos(angle*np.pi/180)
     ER_el = kin.ER_0(c, E0, A)
-    e0 = 3.8*1e-3
+    e0 = 3.8
     F = 0.119
     
     E_el_Q = Y(ER_el)*ER_el
     
     n_e_base = np.floor(E_el_Q/e0)
         
-    first_bin = n_e_base*e0 + 1.2e-3
+    first_bin = n_e_base*e0 + 1.2
     last_bin = first_bin + (number_of_bins + 1)*e0
         
     bins = np.arange(first_bin, last_bin, e0)
@@ -173,7 +175,7 @@ def fixed_angle_electron_spectrum_Si_crude(Eion_spectrum, Y, En, c, A, flux = 1,
         hist.append(rate)
         
     if(n_e_base == 0):
-        zero_bin = rate = flux*integrate.quad(Eion_spectrum, 0, 1.2e-3, limit=100, epsrel=1e-4)[0]
+        zero_bin = rate = flux*integrate.quad(Eion_spectrum, 0, 1.2, limit=100, epsrel=1e-4)[0]
         hist = [zero_bin] + hist
         n_e_bins = [0] + n_e_bins
     
@@ -196,13 +198,13 @@ def fixed_angle_electron_spectrum_Si_moments(Eion_spectrum, ER_Q, flux=1, number
             p_n = get_p_n_Si(n)
             
         integrand = lambda E: flux*Eion_spectrum(E)*p_n(E)
-        E_start = max(1.2e-3, ER_Q)
-        E_start = max(E_start, n*3.8*1e-3 - 5*0.34*np.sqrt(n)*3.8*1e-3)
-        E_end = n*3.8*1e-3 + 5*0.34*np.sqrt(n)*3.8*1e-3
+        E_start = max(1.2, ER_Q)
+        E_start = max(E_start, n*3.8 - 5*0.34*np.sqrt(n)*3.8)
+        E_end = n*3.8 + 5*0.34*np.sqrt(n)*3.8
         #these endpoints are derived essentially as the 5 sigma boundaries for the n_e distributions
         if(n == 0):
             E_start = 0
-            E_end = 1.2e-3
+            E_end = 1.2
         
         I, E = integrate.quad(integrand, E_start, E_end, epsrel=1e-3, limit=200)
         rate = I

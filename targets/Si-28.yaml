@@ -4,6 +4,7 @@ Z : 14
 methods: 
  - ["ibe", "data/Si/migdal/ibe.dat"]
  - ["elf", "data/Si/migdal/elf.dat"]
+ - ["elf-ibe", "data/Si/migdal/elf-ibe.dat"]
  
 
 nuclear_datasets:

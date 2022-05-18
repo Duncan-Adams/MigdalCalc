@@ -5,8 +5,10 @@ import scipy.interpolate as interp
 ####Linhard model###
 def Lindhard_Factor(E_R, Z, A): #lindhard quenching model, see eq (5) of 1801.10159
     g = lambda x: 3*(x**0.15) + 0.7*(x**0.6) + x
+    
+    E_R_keV = 1e-3*E_R
 
-    eps = 11.5*(Z**(-7/3))*E_R
+    eps = 11.5*(Z**(-7/3))*E_R_keV
     k = 0.133*(Z**(2/3))*(A**(-1/2))
     
     return k*g(eps)/(1 + k*g(eps))
@@ -19,7 +21,7 @@ def atomic_ionization_ratio(I, E_e):
 
 #note this is defined only for xenon currently
 def charge_yield(E_R, Z, A): #see equations (11)-(13) of 1801.10159
-    Y = Lindhard_Factor((1e-3)*E_R, Z, A)
+    Y = Lindhard_Factor(E_R, Z, A)
 
     ion_ratio = atomic_ionization_ratio(555.57, Y*E_R)
 

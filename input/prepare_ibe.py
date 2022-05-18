@@ -3,15 +3,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.interpolate as interp
 
-def prepare_ibe(ibe_datafile,energies, outfile):
+def prepare_ibe(ibe_datafile, n_shells, energies):
     n_pts_shell = 254
     
     with open(ibe_datafile, "r") as df:
         data = df.readlines()
         
         n_lines = len(data)
-        n_shells = int(n_lines/n_pts_shell)
-        
         shells = []
         
         for n in range(0, n_shells):
@@ -42,10 +40,8 @@ def prepare_ibe(ibe_datafile,energies, outfile):
             for shell in shells:
                 prob += shell(dE)
             prob_final.append(prob)
-            
-        np.savetxt(outfile, list(zip(deltaE_final, prob_final)), fmt='%.5e', delimiter=',')
         
-    return
+    return deltaE_final, prob_final
     
 ################################################################################
 # Xenon Binding Energies
@@ -72,5 +68,8 @@ Si_Energies[(2,1)] = 115
 Si_Energies[(3,0)] = 14.7
 Si_Energies[(3,1)] = 8.1
 ################################################################################
-prepare_ibe('./ibe/Xe.dat', Xe_Energies, '../targets/data/Xe/migdal/ibe.dat')
-prepare_ibe('./ibe/Si.dat', Si_Energies, '../targets/data/Si/migdal/ibe.dat')
+Xe_dE, Xe_p = prepare_ibe('./ibe/Xe.dat', n_shells = 11, energies=Xe_Energies)
+Si_dE, Si_p = prepare_ibe('./ibe/Si.dat', n_shells = 5, energies=Si_Energies)
+
+np.savetxt('../targets/data/Xe/migdal/ibe.dat', list(zip(Xe_dE, Xe_p)), fmt='%.5e', delimiter=',')
+np.savetxt('../targets/data/Si/migdal/ibe.dat', list(zip(Si_dE, Si_p)), fmt='%.5e', delimiter=',')

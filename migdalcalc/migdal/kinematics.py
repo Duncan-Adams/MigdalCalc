@@ -19,6 +19,9 @@ def E_Recoil(DeltaE, c, A, En):
     E_R  = E0(A,En)*(2 - R - 2*c*z)
 
     return E_R
+    
+def E_R_elastic(c, A, En):
+    return 2*(1-c)*E0(A,En)
 
 def q_e2(E_R, A):
     m_e2 = (511000)**2 #squared electron mass in eV
