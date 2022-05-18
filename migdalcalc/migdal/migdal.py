@@ -9,7 +9,7 @@ class migdal():
     #probability in the second. It assumes energy units in eV and migdal probability normalized at q_e = 1 eV
     def __add_method(self, name, datafile):
         migdal_prob_data = np.genfromtxt(datafile, delimiter=',')
-                
+        
         x = list(zip(*migdal_prob_data))[0]
         y = list(zip(*migdal_prob_data))[1]
         
@@ -27,7 +27,7 @@ class migdal():
             
             self.__add_method(name, directory + datafile)
         
-    def dP_dEe(self, Ee, method=''):
-        return self.method_dict[method](Ee)
+    def dP_dDeltaE(self, DeltaE, method='ibe'):
+        return self.method_dict[method](DeltaE)
     
         

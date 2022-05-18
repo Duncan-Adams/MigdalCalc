@@ -62,7 +62,7 @@ class nuclear():
                     else:
                         a_l_points[l].append(0)
                         
-                a_l_interps.append(interp.interp1d(energies, a_l_points[l], bounds_error=False, fill_value=0))
+                a_l_interps.append(interp.interp1d(energies, a_l_points[l], bounds_error=True))
                             
             return a_l_interps
             
