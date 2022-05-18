@@ -71,8 +71,6 @@ def W_i_effective(E_R, Y, Z, A):
 def Y_SI_hi(ER):
     A_SI = 28
     Z_SI = 14
-    #convert ER to eV from keV
-    ER = 1e3*ER
     
     if(ER < 15):
         return 0
@@ -80,10 +78,9 @@ def Y_SI_hi(ER):
     if(ER < 250):
         return 0.18*(1 - np.exp(-1*(ER - 15)/71.3))
         
-    return Lindhard_Factor(1e-3*ER, Z_SI, A_SI)
+    return Lindhard_Factor(ER, Z_SI, A_SI)
 
 def Y_SI_lo(ER):
-    ER = 1e3*ER # convert from keV to eV
     if (ER < 300):
         return 0
     Y = (0.20*ER - 78.37)/(ER)
