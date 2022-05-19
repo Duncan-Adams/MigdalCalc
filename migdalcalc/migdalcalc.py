@@ -87,11 +87,11 @@ class migdalcalc():
         return Eion_spectrum
         
     #Get the differenial migdal cross section, integrated over nuclear recoil energies, assuming Hard Sphere scattering
-    def dR_dDeltaE_HS(self, En, method='ibe'):
+    def dR_dDeltaE_HS(self, En, method='ibe', flux=1):
         A = self.A
         m_e = 511000
         one_eV = 1
-        m_n = 0.94*1e6
+        m_n = 0.94*1e9
         M_A = A*m_n
         
         sigma = self.nuc.SIG(En)
@@ -100,7 +100,8 @@ class migdalcalc():
         
         dE_max = kin.DeltaE_Max(A, En)
         
-        spec = lambda dE: pref*En*(sigma/m_n)*self.mig.dP_dDeltaE(dE, method)*(2 - ((A+1)/A)*(dE/En))*np.sqrt(np.heaviside(dE_max - dE, 1)*(1 - ((A+1)/A)*(dE/En)))
+        def migdal_spectrum_HS(dE):
+            return flux*pref*En*(sigma/m_n)*self.mig.dP_dDeltaE(dE, method)*(2 - ((A+1)/A)*(dE/En))*np.sqrt(np.heaviside(dE_max - dE, 1)*(1 - ((A+1)/A)*(dE/En)))
         
-        return spec
+        return migdal_spectrum_HS
     
