@@ -4,6 +4,9 @@ Z : 54
 methods: 
  - ["ibe", "data/Xe/migdal/ibe.dat"]
 
- 
+
+
+nuclear_datasets:
+ - jendl40: ["data/Xe/nuclear/Xe131_SIG_jendl40.json", "data/Xe/nuclear/Xe131_DA_jendl40.txt"]
 
 

@@ -91,7 +91,7 @@ class migdalcalc():
         A = self.A
         m_e = 511000
         one_eV = 1
-        m_n = 0.94*1e9
+        m_n = 0.939*1e9
         M_A = A*m_n
         
         sigma = self.nuc.SIG(En)
