@@ -3,8 +3,6 @@ import numpy as np
 import os
 
 class migdal():
-    method_dict = dict()
-    
     #This function takes a data file with deltaE in the first column, and migdal
     #probability in the second. It assumes energy units in eV and migdal probability normalized at q_e = 1 eV
     def __add_method(self, name, datafile):
@@ -21,6 +19,7 @@ class migdal():
         
     #methods is an array of tuples containing the name of the method and a datafile with the migdal probabilities
     def __init__(self, methods=None, directory='./'):
+        self.method_dict = dict()
         for method in methods:
             name = method[0]
             datafile = method[1]
