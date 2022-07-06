@@ -1,6 +1,9 @@
 # Kinematics.py - kinematical functions used in various migdal calculations
 import numpy as np
 
+def mu(m1, m2):
+    return m1*m2/(m1 + m2)
+
 def velocity(En, m):
     v2 = 1 - 1/((En/m + 1)**2)
 

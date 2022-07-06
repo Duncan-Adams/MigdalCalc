@@ -1,4 +1,4 @@
-#prepare ibe.py - puts ibe data into the form used fro migdal calc
+#prepare ibe.py - puts ibe data into the form used for migdal calc
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.interpolate as interp
@@ -17,12 +17,15 @@ def prepare_ibe(ibe_datafile, n_shells, energies):
             n_prin, ell = np.genfromtxt((data[shell_slice])[slice(1,2)])
             
             shell_data = np.genfromtxt(data[shell_slice], skip_header=3)
+            E_nl = energies[(n_prin,ell)]
             
             dE_arr = []
             pe_arr = []
-            
+            #Add a zero point, since ibe only goes down to 1 eV
+            dE_arr.append(E_nl)
+            pe_arr.append((1/(2*np.pi))*shell_data[0][1])
             for data_point in shell_data:
-                E_nl = energies[(n_prin,ell)]
+                
                 
                 deltaE = data_point[0] + E_nl
                 diff_P = (1/(2*np.pi))*data_point[1]
@@ -68,8 +71,19 @@ Si_Energies[(2,1)] = 115
 Si_Energies[(3,0)] = 14.7
 Si_Energies[(3,1)] = 8.1
 ################################################################################
+# Argon Binding Energies
+################################################################################
+Ar_Energies = dict()
+Ar_Energies[(1,0)] = 3.2e3
+Ar_Energies[(2,0)] = 3.0e2
+Ar_Energies[(2,1)] = 2.4e2
+Ar_Energies[(3,0)] = 2.7e1
+Ar_Energies[(3,1)] = 1.3e1
+################################################################################
 Xe_dE, Xe_p = prepare_ibe('./ibe/Xe.dat', n_shells = 11, energies=Xe_Energies)
 Si_dE, Si_p = prepare_ibe('./ibe/Si.dat', n_shells = 5, energies=Si_Energies)
+Ar_dE, Ar_p = prepare_ibe('./ibe/Ar.dat', n_shells = 5, energies=Ar_Energies)
 
 np.savetxt('../targets/data/Xe/migdal/ibe.dat', list(zip(Xe_dE, Xe_p)), fmt='%.5e', delimiter=',')
 np.savetxt('../targets/data/Si/migdal/ibe.dat', list(zip(Si_dE, Si_p)), fmt='%.5e', delimiter=',')
+np.savetxt('../targets/data/Ar/migdal/ibe.dat', list(zip(Ar_dE, Ar_p)), fmt='%.5e', delimiter=',')

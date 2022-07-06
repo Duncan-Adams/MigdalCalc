@@ -1,0 +1,13 @@
+A : 40
+Z : 18
+
+methods: 
+ - ["ibe", "data/Ar/migdal/ibe.dat"]
+
+
+
+nuclear_datasets:
+ - jendl40: ["data/Ar/nuclear/Ar40_SIG_jendl40.json", "data/Ar/nuclear/Ar40_DA_jendl40.txt"]
+ - jendl5 : ["data/Ar/nuclear/Ar40_SIG_jendl5.json", "data/Ar/nuclear/Ar40_DA_jendl5.txt"]
+
+

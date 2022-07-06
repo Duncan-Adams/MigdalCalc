@@ -105,3 +105,13 @@ class migdalcalc():
         
         return migdal_spectrum_HS
     
+    def dR_dEnr_HS_elastic(self, En, flux=1):
+        A = self.A
+        sigma = self.nuc.SIG(En)
+        E0 = kin.E0(A, En)
+        
+        def elastic_spectrun_HS(E_nr):
+            return np.heaviside(4*E0 - E_nr,1)*flux*sigma/(4*E0)
+            
+        return elastic_spectrun_HS
+        
