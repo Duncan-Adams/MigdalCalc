@@ -7,6 +7,9 @@ from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
 import numpy as np
 import scipy.interpolate as interp
 import scipy.integrate as integrate
+import math
+
+from migdalcalc.migdal import kinematics as kin
 
 def load_csv(file_name, skip_header=0):
     plot_data = np.genfromtxt(file_name, delimiter=',', skip_header=skip_header)
@@ -20,6 +23,67 @@ def interp_csv(file_name, skip_header=0):
     x, y = load_csv(file_name, skip_header)
     
     return interp.interp1d(x, y, bounds_error=False, fill_value = 0, kind='quadratic')
+    
+# from http://randlet.com/blog/python-significant-figures-format/
+def to_precision(x,p):
+    """
+    returns a string representation of x formatted with a precision of p
+
+    Based on the webkit javascript implementation taken from here:
+    https://code.google.com/p/webkit-mirror/source/browse/JavaScriptCore/kjs/number_object.cpp
+    """
+
+    x = float(x)
+
+    if x == 0.:
+        return "0." + "0"*(p-1)
+
+    out = []
+
+    if x < 0:
+        out.append("-")
+        x = -x
+
+    e = int(math.log10(x))
+    tens = math.pow(10, e - p + 1)
+    n = math.floor(x/tens)
+
+    if n < math.pow(10, p - 1):
+        e = e -1
+        tens = math.pow(10, e - p+1)
+        n = math.floor(x / tens)
+
+    if abs((n + 1.) * tens - x) <= abs(n * tens -x):
+        n = n + 1
+
+    if n >= math.pow(10,p):
+        n = n / 10.
+        e = e + 1
+
+    m = "%.*g" % (p, n)
+
+    if e < -3 or e >= p:
+        out.append(m[0])
+        if p > 1:
+            out.append(".")
+            out.extend(m[1:p])
+        out.append('e')
+        if e > 0:
+            out.append("+")
+        out.append(str(e))
+    elif e == (p -1):
+        out.append(m)
+    elif e >= 0:
+        out.append(m[:e+1])
+        if e+1 < len(m):
+            out.append(".")
+            out.extend(m[e+1:])
+    else:
+        out.append("0.")
+        out.extend(["0"]*-(e+1))
+        out.append(m)
+
+    return "".join(out)
 
 
 if __name__ == '__main__':
@@ -96,14 +160,14 @@ if __name__ == '__main__':
             10: {
                 'xmin': 100,
                 'xmax': 220,
-                'ymin': 1e-8,
+                'ymin': 1e-6,
                 'ymax': 1e-1
             },
             
             72: {
                 'xmin': 15700,
                 'xmax': 16300,
-                'ymin': 1e-10,
+                'ymin': 1e-6,
                 'ymax': 1e-2
             }
         }
@@ -142,6 +206,9 @@ if __name__ == '__main__':
     for Energy in Energies:
         for angle in angles:
             
+            elastic_recoil_energy = kin.E_R_elastic(np.cos(np.pi*angle/180), 28, Energy)
+            elastic_energy_str = to_precision(elastic_recoil_energy, 3)
+            
             si_sarkis_prediction_migdal = interp_csv('./output/' + str(Energy) + 'keV/' + str(angle) + 'deg/Ne_sarkis_migdal.csv')
             si_lindhard_prediction_migdal = interp_csv('./output/' + str(Energy) + 'keV/' + str(angle) + 'deg/Ne_lindhard_migdal.csv')
             
@@ -172,7 +239,8 @@ if __name__ == '__main__':
             
             plt.ylim(ymin, ymax)
             plt.xlim(xmin, xmax)
-            plt.title(r'E$_N$ = ' + str(Energy) + 'keV; $\Theta_{CM}$ = ' + str(angle) + 'deg')
+            
+            plt.title(r'E$_N$ = ' + str(Energy) + 'keV; $\Theta_{CM}$ = ' + str(angle) + 'deg; E$_{nr,el}$ = ' + elastic_energy_str + 'keV')
             plt.xlabel('Electron-Hole Pairs')
             plt.ylabel('Events/neutron')
             plt.legend()
