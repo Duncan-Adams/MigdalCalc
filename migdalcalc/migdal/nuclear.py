@@ -128,6 +128,38 @@ class nuclear():
     
                 energy_coeeficients[k] += jac*acc
     
+        return poly.Polynomial(energy_coeeficients)
+
+    def dSig_dEnr_test(self, En):
+        sigma = self.SIG(En)
+        A = self.A
+        
+        a_l = []
+        
+        for a_l_i in self.DA:
+            if(abs(a_l_i(En)) > 0):
+                a_l.append(a_l_i(En))
+
+        highest_power = len(a_l) #highest power in energy the expanstion will have
+        energy_coeeficients = [0]*highest_power
+    
+        E0 = (A/(A+1)**2)*En
+        jac = 1/(2*E0) #jacobian from cos theta to ER
+    
+        for k in range(highest_power):
+    
+            pref = 0.5*sigma/(2*np.pi)
+            sign = (-1)**k
+            E_factor = (1/(4*E0)**k)
+
+            for ell in range(k, highest_power):
+
+
+                comb_factor = comb(ell, k)*comb(ell + k, k)
+    
+                acc = E_factor*a_l[ell]*(2*ell + 1)*sign*pref*comb_factor
+    
+                energy_coeeficients[k] += jac*acc
     
         return poly.Polynomial(energy_coeeficients)
     

@@ -133,6 +133,48 @@ def Si_electron_spectrum_binned(Eion_spectrum, Y, En, c, A, flux = 1, number_of_
     
     return n_e_bins, hist
     
+
+#produces the spectrum of electron events in a noble gas
+def noblegas_electron_spectrum_binned(Eion_spectrum, Y, W, F, En, c, A, flux = 1, number_of_bins=20, fano=True):
+    ER_el = kin.E_R_elastic(c, A, En)
+    e0 = W
+    F = F
+    
+    E_el_Q = Y(ER_el)*ER_el
+    
+    n_e_base = np.floor(E_el_Q/e0)
+
+    first_bin = n_e_base*e0 + 1.2
+    last_bin = first_bin + (number_of_bins + 1)*e0
+        
+    bins = np.arange(first_bin, last_bin, e0)
+    n_e_bins = np.arange(1, number_of_bins + 1, 1, dtype=int)
+    
+    hist = []
+    
+    for n_e in n_e_bins:
+        lower_bound = np.round(bins[n_e - 1], 6)
+        upper_bound = np.round(bins[n_e], 6)
+        rate = flux*integrate.quad(Eion_spectrum, lower_bound, upper_bound, limit=100, epsrel=1e-4)[0]
+        # ~ E_range = np.geomspace(lower_bound, upper_bound, 101)
+        # ~ samples = Eion_spectrum(E_range)
+        # ~ rate = flux*integrate.trapz(samples, E_range)
+        if rate < 1e-12:
+            rate = 0
+        hist.append(rate)
+        
+    if(n_e_base == 0):
+        zero_bin = rate = flux*integrate.quad(Eion_spectrum, 0, 1.2, limit=100, epsrel=1e-4)[0]
+        hist = [zero_bin] + hist
+        n_e_bins = [0] + n_e_bins
+    
+    if(fano == True):
+        fano_bins, fano_hist = Fano_smearing(n_e_bins, hist, F, nsig = 5)
+        return fano_bins, fano_hist
+        
+    
+    return n_e_bins, hist
+
 #produces spectrum by integrating against the n electron probabilities from 2004.10709
 def Si_electron_spectrum(Eion_spectrum, ER_Q, flux=1, start_bin=0, number_of_bins=20, gaussian=False):        
     n_bins = np.arange(start_bin, start_bin + number_of_bins, 1, dtype=int)
