@@ -81,7 +81,7 @@ Ar_Energies[(3,0)] = 2.7e1
 Ar_Energies[(3,1)] = 1.3e1
 ################################################################################
 Xe_dE, Xe_p = prepare_ibe('./ibe/Xe.dat', n_shells = 11, energies=Xe_Energies)
-Si_dE, Si_p = prepare_ibe('./ibe/Si.dat', n_shells = 5, energies=Si_Energies)
+Si_dE, Si_p = prepare_ibe('./ibe/Si.dat', n_shells = 3, energies=Si_Energies)
 Ar_dE, Ar_p = prepare_ibe('./ibe/Ar.dat', n_shells = 5, energies=Ar_Energies)
 
 np.savetxt('../targets/data/Xe/migdal/ibe.dat', list(zip(Xe_dE, Xe_p)), fmt='%.5e', delimiter=',')

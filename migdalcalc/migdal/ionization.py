@@ -144,11 +144,12 @@ def noblegas_electron_spectrum_binned(Eion_spectrum, Y, W, F, En, c, A, flux = 1
     
     n_e_base = np.floor(E_el_Q/e0)
 
-    first_bin = n_e_base*e0 + 1.2
+
+    first_bin = n_e_base*e0
     last_bin = first_bin + (number_of_bins + 1)*e0
         
     bins = np.arange(first_bin, last_bin, e0)
-    n_e_bins = np.arange(1, number_of_bins + 1, 1, dtype=int)
+    n_e_bins = np.arange(n_e_base, number_of_bins + 1, 1, dtype=int)
     
     hist = []
     
@@ -156,23 +157,16 @@ def noblegas_electron_spectrum_binned(Eion_spectrum, Y, W, F, En, c, A, flux = 1
         lower_bound = np.round(bins[n_e - 1], 6)
         upper_bound = np.round(bins[n_e], 6)
         rate = flux*integrate.quad(Eion_spectrum, lower_bound, upper_bound, limit=100, epsrel=1e-4)[0]
-        # ~ E_range = np.geomspace(lower_bound, upper_bound, 101)
-        # ~ samples = Eion_spectrum(E_range)
-        # ~ rate = flux*integrate.trapz(samples, E_range)
         if rate < 1e-12:
             rate = 0
         hist.append(rate)
         
-    if(n_e_base == 0):
-        zero_bin = rate = flux*integrate.quad(Eion_spectrum, 0, 1.2, limit=100, epsrel=1e-4)[0]
-        hist = [zero_bin] + hist
-        n_e_bins = [0] + n_e_bins
     
     if(fano == True):
         fano_bins, fano_hist = Fano_smearing(n_e_bins, hist, F, nsig = 5)
         return fano_bins, fano_hist
         
-    
+
     return n_e_bins, hist
 
 #produces spectrum by integrating against the n electron probabilities from 2004.10709

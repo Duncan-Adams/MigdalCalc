@@ -49,13 +49,25 @@ class migdalcalc():
         E0 = kin.E0(A, En)
         
         spectrum_Enr = self.d2R_dEnr_dDeltaE(En, method)
-        #jacobian of Enr -> cos theta
-        J = lambda x: 2*E0*np.sqrt(1 - x)
+        #jacobian of Enr -> cos theta_n
+        J = lambda dE, c: kin.Jac_lab(dE, c, A, En) 
         
         def migdal_spectrum(deltaE, c):
-            R = deltaE/En
+            return spectrum_Enr(kin.E_Recoil(deltaE, c, A, En), deltaE)*J(deltaE, c)
             
-            return spectrum_Enr(kin.E_Recoil(deltaE, c, A, En), deltaE)*J(R)
+        return migdal_spectrum
+
+    #differential rate in cos theta_CM and Delta E, based on eqn 94 of ibe
+    def d2R_dc_dDeltaE_CM_ibe(self, En, method='ibe'):
+        A = self.A
+        E0 = kin.E0(A, En)
+        
+        spectrum_Enr = self.d2R_dEnr_dDeltaE(En, method)
+        #jacobian of Enr -> cos theta_n
+        J = lambda dE, c: kin.Jac_lab_CM(dE, c, A, En) 
+        
+        def migdal_spectrum(deltaE, c):
+            return spectrum_Enr(kin.E_Recoil_CM(deltaE, c, A, En), deltaE)*J(deltaE, c)
             
         return migdal_spectrum
     
@@ -64,7 +76,7 @@ class migdalcalc():
         A = self.A
         E0 = kin.E0(A, En)
         
-        dE_max = kin.DeltaE_Max(A, En)
+        dE_max = kin.DeltaE_Max(A, En, c)
         dE_range = np.geomspace(1e-3, dE_max, 1000)
         
         Eion_arr = []
@@ -76,9 +88,19 @@ class migdalcalc():
         
         return interp1d(Eion_arr, dE_range, bounds_error=False, fill_value = 0)
     
-    #differential migdal rate in ionization energy at fixed angle
+    #differential migdal rate in ionization energy at fixed (Lab) angle
     def dR_dEion(self, c, En, Y, method='ibe'):
         dE_c_spec = self.d2R_dc_dDeltaE(En, method)
+        DeltaE_Eion = self._get_DeltaE_Eion(c, En, Y)
+        
+        def Eion_spectrum(Eion):
+            return dE_c_spec(DeltaE_Eion(Eion), c)
+            
+        return Eion_spectrum
+
+    #differential migdal rate in ionization energy at fixed (CM) angle, based on equation 94 of ibe
+    def dR_dEion_CM_ibe(self, c, En, Y, method='ibe'):
+        dE_c_spec = self.d2R_dc_dDeltaE_CM_ibe(En, method)
         DeltaE_Eion = self._get_DeltaE_Eion(c, En, Y)
         
         def Eion_spectrum(Eion):

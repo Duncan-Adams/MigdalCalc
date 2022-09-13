@@ -115,14 +115,14 @@ quenching_cdms_fit = interp.interp1d(E_R_data, qf_data, bounds_error=False, fill
 def Y_Si_sarkis(ER):
     E_keV = ER*1e-3
     if(E_keV > quenching_sarkis_si.x[-1]):
-        return Lindhard_Factor(E_keV, 14, 28)
+        return Lindhard_Factor(ER, 14, 28)
     
     return quenching_sarkis_si(E_keV)
 
 def Y_Si_CDMS(ER):
     E_keV = ER*1e-3
     if(E_keV > quenching_cmds_fit.x[-1]):
-        return Lindhard_Factor(E_keV, 14, 28)
+        return Lindhard_Factor(ER, 14, 28)
         
     return quenching_cdms_fit(E_keV)
 

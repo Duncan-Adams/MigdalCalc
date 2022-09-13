@@ -16,7 +16,7 @@ def prepare_elf_ibe(elf_datafile, ibe_datafile, n_shells, energies):
     ibe_interp = interp.interp1d(dE_ibe, p_ibe, bounds_error=False, fill_value = 0, kind='linear')
     elf_interp = interp.interp1d(dE_elf, p_elf, bounds_error=False, fill_value = 0, kind='linear')
     
-    dE_range = np.geomspace(1, 2.2e4, 1000)
+    dE_range = np.geomspace(1, 2.2e4, 2000)
     combined_p = []
 
     for dE in dE_range:
@@ -27,7 +27,7 @@ def prepare_elf_ibe(elf_datafile, ibe_datafile, n_shells, energies):
     
     return dE_range, combined_p
 
-Si_dE, Si_p = prepare_elf_ibe('./darkelf/Si_elf.dat', './ibe/Si.dat', n_shells=4, energies=Si_Energies)
+Si_dE, Si_p = prepare_elf_ibe('./darkelf/Si_elf.dat', './ibe/Si.dat', n_shells=3, energies=Si_Energies)
 
 np.savetxt('../targets/data/Si/migdal/elf-ibe.dat', list(zip(Si_dE, Si_p)), fmt='%.5e', delimiter=',')
 

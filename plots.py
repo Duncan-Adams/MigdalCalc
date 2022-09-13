@@ -11,6 +11,8 @@ import math
 
 from migdalcalc.migdal import kinematics as kin
 
+plt.rcParams['figure.dpi'] = 200
+
 def load_csv(file_name, skip_header=0):
     plot_data = np.genfromtxt(file_name, delimiter=',', skip_header=skip_header)
     
@@ -84,6 +86,14 @@ def to_precision(x,p):
         out.append(m)
 
     return "".join(out)
+############################################
+
+
+CB_color_cycle = ['#377eb8', '#ff7f00', '#4daf4a',
+                  '#f781bf', '#a65628', '#984ea3',
+                  '#999999', '#e41a1c', '#dede00']
+
+plt.rcParams['axes.prop_cycle'] = matplotlib.cycler(color=CB_color_cycle)
 
 
 if __name__ == '__main__':
@@ -165,8 +175,8 @@ if __name__ == '__main__':
             },
             
             72: {
-                'xmin': 15700,
-                'xmax': 16300,
+                'xmin': 16600,
+                'xmax': 17200,
                 'ymin': 1e-6,
                 'ymax': 1e-2
             }
@@ -174,46 +184,19 @@ if __name__ == '__main__':
         
     }
         
-
-    # ~ for angle in angles_impact:
-        # ~ migdal_x, migdal_y = load_csv('../output/electron_yield/Si/' + str(E_impact) +  'keV/elf-ibe/' + 'yield_sarkis_' + str(angle) + 'deg.csv')
-        # ~ elastic_x, elastic_y = load_csv('../output/electron_yield/Si/' + str(E_impact) +  'keV/elf-ibe/' + 'elastic_sarkis_' + str(angle) + 'deg.csv')
-        
-        
-        # ~ print("Total Migdal Events: " + str(np.sum(migdal_y[1:])))
-        # ~ plt.step(migdal_x, migdal_y, where='mid', label='Migdal')
-        # ~ plt.step(elastic_x, elastic_y, where='mid', label="Elastic")
-        
-        # ~ plt.title(r"$\theta_{CM}$ = " + str(angle) + "deg")
-        # ~ plt.xlabel('electron-hole pairs')
-        # ~ plt.ylabel('Rate [g$^{-1}$ day$^{-1}$]')
-        
-        # ~ xmin = plot_settings[E_impact][angle]['xmin']
-        # ~ xmax = plot_settings[E_impact][angle]['xmax']
-        # ~ ymin = plot_settings[E_impact][angle]['ymin']
-        # ~ ymax = plot_settings[E_impact][angle]['ymax']
-        # ~ plt.xlim(xmin, xmax)
-        # ~ plt.ylim(ymin, ymax)
-        # ~ plt.yscale('log')
-        # ~ plt.legend()
-        # ~ plt.savefig(str(angle) + 'deg.png', dpi=900)
-        # ~ plt.cla()
-        
-    
-    
     
         
     for Energy in Energies:
         for angle in angles:
             
-            elastic_recoil_energy = kin.E_R_elastic(np.cos(np.pi*angle/180), 28, Energy)
+            elastic_recoil_energy = kin.E_Recoil(0, np.cos(np.pi*angle/180), 28, Energy)
             elastic_energy_str = to_precision(elastic_recoil_energy, 3)
             
-            si_sarkis_prediction_migdal = interp_csv('./output/' + str(Energy) + 'keV/' + str(angle) + 'deg/Ne_sarkis_migdal.csv')
-            si_lindhard_prediction_migdal = interp_csv('./output/' + str(Energy) + 'keV/' + str(angle) + 'deg/Ne_lindhard_migdal.csv')
+            si_sarkis_prediction_migdal = interp_csv('./output/' + str(Energy) + 'keV/' + str(angle) + 'deg/elf-ibe_Ne_sarkis_migdal.csv')
+            si_lindhard_prediction_migdal = interp_csv('./output/' + str(Energy) + 'keV/' + str(angle) + 'deg/elf-ibe_Ne_lindhard_migdal.csv')
             
-            si_sarkis_prediction_elastic = load_csv('./output/' + str(Energy) + 'keV/' + str(angle) + 'deg/Ne_sarkis_elastic.csv')
-            si_lindhard_prediction_elastic = load_csv('./output/' + str(Energy) + 'keV/' + str(angle) + 'deg/Ne_lindhard_elastic.csv')
+            si_sarkis_prediction_elastic = load_csv('./output/' + str(Energy) + 'keV/' + str(angle) + 'deg/elf-ibe_Ne_sarkis_elastic.csv')
+            si_lindhard_prediction_elastic = load_csv('./output/' + str(Energy) + 'keV/' + str(angle) + 'deg/elf-ibe_Ne_lindhard_elastic.csv')
             
             n_e_baseline = 0
             for i in range(len(si_sarkis_prediction_migdal.x)):
@@ -231,20 +214,85 @@ if __name__ == '__main__':
             xmin = plot_settings[Energy][angle]['xmin']
             xmax = plot_settings[Energy][angle]['xmax']
             
-            plt.step(x_pts, si_sarkis_prediction_migdal(x_pts), where='mid', label='Sarkis Migdal', linestyle = 'dashed', color='red')
-            plt.step(x_pts, si_lindhard_prediction_migdal(x_pts), where='mid', label='Lindhard Migdal',linestyle='dashed',color ='blue')
+            plt.step(x_pts, si_sarkis_prediction_migdal(x_pts), where='mid', label='Sarkis Migdal', linestyle = 'dotted', color='red')
+            plt.step(x_pts, si_lindhard_prediction_migdal(x_pts), where='mid', label='Lindhard Migdal',linestyle='dotted',color ='blue')
             
             plt.step(si_sarkis_prediction_elastic[0], si_sarkis_prediction_elastic[1], where='mid', label='Sarkis Elastic', color='red')
             plt.step(si_lindhard_prediction_elastic[0], si_lindhard_prediction_elastic[1], where='mid', label='Lindhard Elastic', color='blue')
-            
             plt.ylim(ymin, ymax)
             plt.xlim(xmin, xmax)
             
-            plt.title(r'E$_N$ = ' + str(Energy) + 'keV; $\Theta_{CM}$ = ' + str(angle) + 'deg; E$_{nr,el}$ = ' + elastic_energy_str + 'keV')
+            plt.title(r'E$_n$ = ' + str(Energy) + r'keV; $\theta_{\mathrm{Lab}}$ = ' + str(angle) + r'deg; E$_{\mathrm{nr,el}}$ = ' + elastic_energy_str + 'keV')
             plt.xlabel('Electron-Hole Pairs')
             plt.ylabel('Events/neutron')
             plt.legend()
             plt.yscale('log')
             plt.savefig('./plots/Si/N_eh_' + str(Energy) + 'keV_' + str(angle) + 'deg.png')
+            plt.cla()
+
+
+    exit()
+    for Energy in Energies:
+        for angle in angles:
+            
+            elastic_recoil_energy = kin.E_Recoil(0, np.cos(np.pi*angle/180), 28, Energy)
+            elastic_energy_str = to_precision(elastic_recoil_energy, 3)
+            
+            migdal_ibe = interp_csv('./output/' + str(Energy) + 'keV/' + str(angle) + 'deg/ibe_Ne_sarkis_migdal.csv')
+            migdal_elf = interp_csv('./output/' + str(Energy) + 'keV/' + str(angle) + 'deg/elf_Ne_sarkis_migdal.csv')
+            migdal_tot = interp_csv('./output/' + str(Energy) + 'keV/' + str(angle) + 'deg/elf-ibe_Ne_sarkis_migdal.csv')
+            
+            si_sarkis_prediction_elastic = load_csv('./output/' + str(Energy) + 'keV/' + str(angle) + 'deg/Ne_sarkis_elastic.csv')
+            elastic_interp = interp_csv('./output/' + str(Energy) + 'keV/' + str(angle) + 'deg/Ne_sarkis_elastic.csv')
+
+            
+            n_e_baseline = 0
+            for i in range(len(migdal_tot.x)):
+                if migdal_tot.y[i] > 0:
+                    n_e_start = migdal_tot.x[i]
+                    break
+
+
+                    
+            n_e_end = migdal_tot.x[-1]
+
+            n_e_total = np.arange(0, n_e_end, dtype=int)
+
+            rate_total = []
+
+            for n_e in n_e_total:
+                rate_total.append(migdal_tot(n_e) + elastic_interp(n_e))
+                    
+            x_pts = np.arange(n_e_baseline, n_e_end, 1)
+            
+            ymin = plot_settings[Energy][angle]['ymin']
+            ymax = plot_settings[Energy][angle]['ymax']
+            
+            xmin = plot_settings[Energy][angle]['xmin']
+            xmax = plot_settings[Energy][angle]['xmax']
+
+
+            plt.fill_between(si_sarkis_prediction_elastic[0], si_sarkis_prediction_elastic[1], step='mid', label='Elastic', alpha=0.65)
+            plt.fill_between(x_pts, migdal_elf(x_pts), step='mid', label='Valence Band', alpha=0.65)
+            plt.fill_between(x_pts, migdal_ibe(x_pts), step='mid', label="Inner Shells", alpha=0.65)
+
+            plt.step(n_e_total, rate_total, where='mid',label="Total", color="black")
+
+
+            
+            # plt.step(si_sarkis_prediction_elastic[0], si_sarkis_prediction_elastic[1], where='mid', label='Elastic')
+
+            
+
+            
+            plt.ylim(ymin, ymax)
+            plt.xlim(xmin, xmax)
+            
+            plt.title(r'E$_n$ = ' + str(Energy) + r'keV; $\theta_{\mathrm{Lab}}$ = ' + str(angle) + r'deg; E$_{\mathrm{nr,el}}$ = ' + elastic_energy_str + 'keV')
+            plt.xlabel('Electron-Hole Pairs')
+            plt.ylabel('Events/neutron')
+            plt.legend()
+            plt.yscale('log')
+            plt.savefig('./plots/Si/fig3/N_eh_' + str(Energy) + 'keV_' + str(angle) + 'deg_sarkis.png')
             plt.cla()
     
