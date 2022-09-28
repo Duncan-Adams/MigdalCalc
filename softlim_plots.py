@@ -13,7 +13,30 @@ from itertools import product
 
 from migdalcalc.migdal import kinematics as kin
 
-plt.rcParams['figure.dpi'] = 200
+
+#########################################################################
+plt.rcParams['figure.dpi'] = 400
+matplotlib.rc('xtick', labelsize=15) 
+matplotlib.rc('ytick', labelsize=15) 
+plt.rcParams["axes.formatter.use_mathtext"] = True
+
+font = {'family' : 'serif',
+         'weight' : 'bold',
+         'size'   : 12,
+         'serif':  'cmr10'
+         }
+
+matplotlib.rc('font', **font)
+
+CB_color_cycle = ['#377eb8', '#ff7f00', '#4daf4a',
+                  '#f781bf', '#a65628', '#984ea3',
+                  '#999999', '#e41a1c', '#dede00']
+
+plt.rcParams['axes.prop_cycle'] = matplotlib.cycler(color=CB_color_cycle)
+
+fs = 15
+
+#########################################################################
 
 def load_csv(file_name, skip_header=0):
     try:
@@ -96,14 +119,6 @@ def to_precision(x,p):
     return "".join(out)
 ############################################
 
-
-CB_color_cycle = ['#377eb8', '#ff7f00', '#4daf4a',
-                  '#f781bf', '#a65628', '#984ea3',
-                  '#999999', '#e41a1c', '#dede00']
-
-plt.rcParams['axes.prop_cycle'] = matplotlib.cycler(color=CB_color_cycle)
-
-
 if __name__ == '__main__':
     Energies = (2*1e3, 23*1e3, 2.507*1e6)
     omegas = (10, 30, 100)
@@ -117,17 +132,17 @@ if __name__ == '__main__':
         for angle in angles:
             kmax_plot.append(1e-3*kin.k_max(En, omega, angle, 28))
 
-        plt.plot(angles, kmax_plot,label=r'k$_\mathrm{max}$')
-        plt.title(r'E$_n$ = ' + str(En*1e-3) + r' keV; $\omega$ = ' + str(omega) + ' eV')
-        plt.xlabel(r'$\theta_{\mathrm{Lab}}$ [deg]')
+        plt.plot(angles, kmax_plot,label=r'$\mathit{k_{max}}$')
+        plt.title(r'$\mathit{E_n}$ = ' + str(En*1e-3) + r' keV; $\mathit{\omega}$ = ' + str(omega) + ' eV',fontsize=fs)
+        plt.xlabel(r'$\mathit{\theta_n}$ [deg]',fontsize=fs)
         plt.hlines(10, 0, 180,color='red',label="Free Electron Gas Bound")
         plt.hlines(30, 0, 180, color='green', label="Mermin Bound")
         plt.xlim(0, 180)
         plt.yscale('log')
-        plt.ylabel(r'k [keV]')
-        plt.legend()
+        plt.ylabel(r'$\mathit{k}$ [keV]',fontsize=fs)
+        plt.legend(prop={"size":15})
         # plt.show()
-        plt.savefig("./plots/Si/softlim/kmax_" + str(int(En*1e-3)) + "keV_" + str(omega) + "eV.png")
+        plt.savefig("./plots/Si/softlim/kmax_" + str(int(En*1e-3)) + "keV_" + str(omega) + "eV.png")      
         plt.cla()
 
     
@@ -173,10 +188,10 @@ if __name__ == '__main__':
         print(hannah_scalefactor*hannah_softlim(-1))
 
 
-        axs.set_xlabel(r'$\theta_{\mathrm{n}}$')
-        axs.set_ylabel(r'Arbitrary Units')
-        axs.set_title(r'E$_n$ = ' + str(En) + r' keV; $\omega$ = ' + str(omega) + ' eV')
-        axs.legend()
+        axs.set_xlabel(r'$\mathit{\theta_n}$',fontsize=fs)
+        axs.set_ylabel(r'$\frac{d \sigma}{d \cos \theta} $ [Arbitrary Units]',fontsize=fs)
+        axs.set_title(r'$\mathit{E_n}$ = ' + str(En) + r' keV; $\mathit{\omega}$ = ' + str(omega) + ' eV',fontsize=fs)
+        plt.legend(prop={"size":15})
 
         plt.savefig("./plots/Si/softlim/comparison_" + str(En) + "keV_" + str(omega) + "eV.png")
 

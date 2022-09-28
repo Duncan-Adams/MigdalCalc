@@ -3,8 +3,9 @@ Z : 14
 
 methods: 
  - ["ibe", "data/Si/migdal/ibe.dat"]
- - ["elf", "data/Si/migdal/elf.dat"]
- - ["elf-ibe", "data/Si/migdal/elf-ibe.dat"]
+ - ["mermin", "data/Si/migdal/si_mermin.dat"]
+ - ["gpaw_noLFE", "data/Si/migdal/si_gpaw_noLFE.dat"]
+ - ["gpaw_withLFE", "data/Si/migdal/si_gpaw_withLFE.dat"]
  
 
 nuclear_datasets:
