@@ -120,35 +120,67 @@ def to_precision(x,p):
 ############################################
 
 if __name__ == '__main__':
-    Energies = (2*1e3, 23*1e3, 2.507*1e6)
+    Energies = (2*1e3, 24*1e3, 2.507*1e6)
     omegas = (10, 30, 100)
 
     angles = np.linspace(0, 180, 1000)
 
     for (En, omega) in product(Energies, omegas):
 
+        kmax_electron_gas = 10
+        kmax_gpaw = 22
+
         kmax_plot = []
 
         for angle in angles:
             kmax_plot.append(1e-3*kin.k_max(En, omega, angle, 28))
 
-        plt.plot(angles, kmax_plot,label=r'$\mathit{k_{max}}$')
+        plt.plot(angles, kmax_plot,label='Soft Limit Bound')
         plt.title(r'$\mathit{E_n}$ = ' + str(En*1e-3) + r' keV; $\mathit{\omega}$ = ' + str(omega) + ' eV',fontsize=fs)
         plt.xlabel(r'$\mathit{\theta_n}$ [deg]',fontsize=fs)
-        plt.hlines(10, 0, 180,color='red',label="Free Electron Gas Bound")
-        plt.hlines(30, 0, 180, color='green', label="Mermin Bound")
+        plt.hlines(kmax_electron_gas, 0, 180,color='red',label="Free Electron Regime",linestyle='dashed')
+        plt.hlines(kmax_gpaw, 0, 180, color='green', label="GPAW Regime",linestyle='dashed')
         plt.xlim(0, 180)
         plt.yscale('log')
         plt.ylabel(r'$\mathit{k}$ [keV]',fontsize=fs)
         plt.legend(prop={"size":15})
         # plt.show()
+
+        if(En == 2*1e3):
+            plt.title(r'$\mathit{E_n}$ = 2 keV; $\mathit{\omega}$ = ' + str(omega) + ' eV',fontsize=fs)
+
+        if(En == 24*1e3):
+            plt.title(r'$\mathit{E_n}$ = 24 keV; $\mathit{\omega}$ = ' + str(omega) + ' eV',fontsize=fs)
+
+        if(En == 2.507*1e6):
+            plt.title(r'$\mathit{E_n}$ = 2.5 MeV; $\mathit{\omega}$ = ' + str(omega) + ' eV',fontsize=fs)
+
+
+        arrow_x_locs = np.arange(5.5, 180, 20)
+
+        for xl in arrow_x_locs:
+            arrow_rel_height = 0.3
+            width = 0.003
+
+            length_eg = arrow_rel_height*kmax_electron_gas
+            length_gpaw = arrow_rel_height*kmax_gpaw
+
+            head_width = 0.8
+
+            plt.arrow(xl, kmax_electron_gas, 0, -1*length_eg, color='red',
+                width=width, head_width=head_width, head_length=0.2*length_eg,length_includes_head=True)
+
+            plt.arrow(xl, kmax_gpaw, 0, -1*length_gpaw, color='green',
+                width=width, head_width=head_width, head_length=0.2*length_gpaw,length_includes_head=True)
+
+
         plt.savefig("./plots/Si/softlim/kmax_" + str(int(En*1e-3)) + "keV_" + str(omega) + "eV.png")      
         plt.cla()
 
     
     plt.close()
 
-    hanah_neutron_enegies = (23, 2507)
+    hanah_neutron_enegies = (24, 2507)
     hannah_omegas = (10, 100)
 
     
@@ -178,19 +210,22 @@ if __name__ == '__main__':
         # fig, axs = plt.subplots(2, 1,sharex=True, gridspec_kw={'height_ratios': [10, 1]})
         fig, axs = plt.subplots(1,1)
 
-        axs.plot(angles, (1/norm)*hannah_softlim(np.cos(np.pi*angles/180)), label="Soft")
-        axs.plot(angles, (1/norm)*hannah_full(np.cos(np.pi*angles/180)), label="Full")
-        axs.plot(angles, (1/norm)*hannah_half(np.cos(np.pi*angles/180)), label="Low-Momentum")
+        # axs.plot(angles, (1/norm)*hannah_softlim(np.cos(np.pi*angles/180)), label="Soft")
+        # axs.plot(angles, (1/norm)*hannah_full(np.cos(np.pi*angles/180)), label="Full")
+        # axs.plot(angles, (1/norm)*hannah_half(np.cos(np.pi*angles/180)), label="Low-Momentum")
+
+        axs.plot(c_range, (1/norm)*hannah_full(c_range), label="Full", color='orange',linewidth=2)
+        axs.plot(c_range, (1/norm)*hannah_softlim(c_range), label="Soft-Limit", linestyle='dashed')
+        axs.plot(c_range, (1/norm)*hannah_half(c_range), label="Low-Momentum",color='g',linestyle='dotted')
 
         # axs[1].plot(c_range, 100*abs((hannah_full(c_range) - hannah_softlim(c_range))/hannah_full(c_range)))
         # axs[1].set_ylim(0, 100)
 
-        print(hannah_scalefactor*hannah_softlim(-1))
-
-
-        axs.set_xlabel(r'$\mathit{\theta_n}$',fontsize=fs)
+        axs.set_xlabel(r'$\cos$ $\mathit{\theta_n}$',fontsize=fs)
         axs.set_ylabel(r'$\frac{d \sigma}{d \cos \theta} $ [Arbitrary Units]',fontsize=fs)
         axs.set_title(r'$\mathit{E_n}$ = ' + str(En) + r' keV; $\mathit{\omega}$ = ' + str(omega) + ' eV',fontsize=fs)
+        if(En == 2507):
+            axs.set_title(r'$\mathit{E_n}$ = 2.5 MeV; $\mathit{\omega}$ = ' + str(omega) + ' eV',fontsize=fs)
         plt.legend(prop={"size":15})
 
         plt.savefig("./plots/Si/softlim/comparison_" + str(En) + "keV_" + str(omega) + "eV.png")

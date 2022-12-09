@@ -1,6 +1,8 @@
 A : 131
 Z : 54
 
+abundance : 0.212
+
 methods: 
  - ["ibe", "data/Xe/migdal/ibe.dat"]
 

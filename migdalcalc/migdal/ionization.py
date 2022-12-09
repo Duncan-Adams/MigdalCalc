@@ -1,7 +1,7 @@
 #ionization.py - define charge production models
 from . import kinematics as kin
 import numpy as np
-import scipy.interpolate as interp
+ 
 import scipy.integrate as integrate
 import scipy.ndimage as ndi
 
@@ -150,13 +150,24 @@ def noblegas_electron_spectrum_binned(Eion_spectrum, Y, W, F, En, c, A, flux = 1
         
     bins = np.arange(first_bin, last_bin, e0)
     n_e_bins = np.arange(n_e_base, number_of_bins + 1, 1, dtype=int)
+    print(bins)
+    print(n_e_bins)
     
     hist = []
+
+    tracker = 0
     
     for n_e in n_e_bins:
-        lower_bound = np.round(bins[n_e - 1], 6)
-        upper_bound = np.round(bins[n_e], 6)
+        # lower_bound = np.round(bins[n_e - 1], 6)
+        # upper_bound = np.round(bins[n_e], 6)
+        lower_bound = n_e*e0
+        upper_bound = (n_e+1)*e0
         rate = flux*integrate.quad(Eion_spectrum, lower_bound, upper_bound, limit=100, epsrel=1e-4)[0]
+
+        if(tracker == 0):
+            print(lower_bound, upper_bound, rate)
+            tracker = 1
+
         if rate < 1e-12:
             rate = 0
         hist.append(rate)
@@ -167,6 +178,28 @@ def noblegas_electron_spectrum_binned(Eion_spectrum, Y, W, F, En, c, A, flux = 1
         return fano_bins, fano_hist
         
 
+    return n_e_bins, hist
+
+def noblegas_electron_spectrum_binned_elastic(rate, Y, W, F, En, c, A, flux = 1, number_of_bins=20, fano=True):
+    ER_el = kin.E_R_elastic(c, A, En)
+    e0 = W
+    F = F
+    
+    E_el_Q = Y(ER_el)*ER_el
+    
+    n_e_base = np.floor(E_el_Q/e0)
+        
+    n_e_bins = np.arange(n_e_base, n_e_base + 2, dtype=int)
+    
+    hist = []
+    
+    hist.append(rate)        
+    hist.append(0)
+
+    if(fano == True):
+        fano_bins, fano_hist = Fano_smearing(n_e_bins, hist, F, nsig = 5)
+        return fano_bins, fano_hist
+        
     return n_e_bins, hist
 
 #produces spectrum by integrating against the n electron probabilities from 2004.10709

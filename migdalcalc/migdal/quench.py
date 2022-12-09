@@ -112,6 +112,12 @@ E_R_data = list(zip(*cdms_data))[0]
 qf_data = list(zip(*cdms_data))[1]
 quenching_cdms_fit = interp.interp1d(E_R_data, qf_data, bounds_error=False, fill_value = 0, kind='linear')
 
+#From 2209.04503
+sarkis_2022_data = np.genfromtxt(data_direcctory + 'sarkis_2022.txt', delimiter=',', skip_header=14)
+E_R_data = list(zip(*sarkis_2022_data))[0]
+qf_data = list(zip(*sarkis_2022_data))[1]
+quenching_sarkis_2022 = interp.interp1d(E_R_data, qf_data,  bounds_error=False, fill_value=0, kind='linear')
+
 def Y_Si_sarkis(ER):
     E_keV = ER*1e-3
     if(E_keV > quenching_sarkis_si.x[-1]):
@@ -125,4 +131,12 @@ def Y_Si_CDMS(ER):
         return Lindhard_Factor(ER, 14, 28)
         
     return quenching_cdms_fit(E_keV)
+
+def Y_Si_sarkis2022(ER):
+    E_keV = ER*1e-3
+    if(E_keV > quenching_sarkis_2022.x[-1]):
+        return Lindhard_Factor(ER, 14, 28)
+
+    return quenching_sarkis_2022(E_keV)
+
 

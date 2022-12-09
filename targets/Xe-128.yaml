@@ -1,0 +1,14 @@
+A : 128
+Z : 54
+
+abundance : 0.0191
+
+methods: 
+ - ["ibe", "data/Xe/migdal/ibe.dat"]
+
+
+
+nuclear_datasets:
+ - jendl40: ["data/Xe/nuclear/.json", "data/Xe/nuclear/"]
+
+
