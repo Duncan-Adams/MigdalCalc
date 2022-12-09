@@ -9,6 +9,6 @@ methods:
 
 
 nuclear_datasets:
- - jendl40: ["data/Xe/nuclear/.json", "data/Xe/nuclear/"]
+ - jendl40: ["data/Xe/nuclear/Xe128_SIG_jendl4.json", "data/Xe/nuclear/Xe128_DA_jendl4.txt"]
 
 
