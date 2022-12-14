@@ -27,6 +27,7 @@ class migdalcalc():
             
         nuclear_dataset = nuclear_dict[nuclear_data_name]
         self.A = data['A']
+        self.abundance = data['abundance']
         
         self.nuc = nuclear.nuclear(self.A, target_directory + nuclear_dataset[0],  target_directory + nuclear_dataset[1])
         #useful conventions
