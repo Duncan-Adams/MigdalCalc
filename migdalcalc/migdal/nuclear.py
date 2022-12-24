@@ -100,35 +100,72 @@ class nuclear():
     
     #Gives the double differential cross section in Enr, phi
     def dSig_dEnr(self, En):
-        sigma = self.SIG(En)
+        sigma_tot = self.SIG(En)
         A = self.A
-        
+        E0 = (A/(A+1)**2)*En
+
         a_l = []
-        
+
         for a_l_i in self.DA:
             if(abs(a_l_i(En)) > 0):
                 a_l.append(a_l_i(En))
 
-        highest_power = len(a_l) #highest power in energy the expanstion will have
-        energy_coeeficients = [0]*highest_power
+        highest_power = len(a_l) #highest power in energy  expansion
+        energy_coeeficients = []
+        jacobian = 1/(2*E0)
+
+        for k in range(highest_power):
+            sign = (-1)**k
+            acc = 0
+
+            for ell in range(k, highest_power):
+                comb_factor = comb(ell, k)*comb(ell + k, k)
+                acc += a_l[ell]*comb_factor*(2*ell + 1)/2
+
+            energy_coeeficients.append(sign*acc)
+
+        expansion_poly = poly.Polynomial(energy_coeeficients)
+
+
+        def differential_xsec(Er):
+            x = Er/(4*E0)
+
+            return jacobian*(sigma_tot/(2*np.pi))*expansion_poly(x)
+
+        return differential_xsec
+
+
+    # def dSig_dEnr(self, En):
+    #     sigma = self.SIG(En)
+    #     A = self.A
+        
+    #     a_l = []
+        
+    #     for a_l_i in self.DA:
+    #         if(abs(a_l_i(En)) > 0):
+    #             a_l.append(a_l_i(En))
+
+    #     highest_power = len(a_l) #highest power in energy the expanstion will have
+    #     energy_coeeficients = [0]*highest_power
     
-        E0 = (A/(A+1)**2)*En
-        jac = 1/(2*E0) #jacobian from cos theta to ER
+    #     E0 = (A/(A+1)**2)*En
+    #     jac = 1/(2*E0) #jacobian from cos theta to ER
     
-        for ell in range(highest_power):
+    #     for ell in range(highest_power):
     
-            pref = 0.5*a_l[ell]*(2*ell + 1)*sigma/(2*np.pi)
+    #         pref = 0.5*a_l[ell]*(2*ell + 1)*sigma/(2*np.pi)
     
-            for k in range(ell+1):
+    #         for k in range(ell+1):
     
-                sign = (-1)**k
-                comb_factor = (1/4**k)*comb(ell, k)*comb(ell + k, k)
+    #             sign = (-1)**k
+    #             comb_factor = (1/4**k)*comb(ell, k)*comb(ell + k, k)
     
-                acc = sign*pref*comb_factor*(1/E0**k)
+    #             acc = sign*pref*comb_factor*(1/E0**k)
     
-                energy_coeeficients[k] += jac*acc
-    
-        return poly.Polynomial(energy_coeeficients)
+    #             energy_coeeficients[k] += jac*acc
+
+
+    #     return poly.Polynomial(energy_coeeficients)
 
     def dSig_dEnr_test(self, En):
         sigma = self.SIG(En)

@@ -10,5 +10,6 @@ methods:
 
 nuclear_datasets:
  - jendl40: ["data/Xe/nuclear/Xe131_SIG_jendl40.json", "data/Xe/nuclear/Xe131_DA_jendl40.txt"]
+ - ENDFBVIII: ["data/Xe/nuclear/Xe131_SIG_ENDFBVIII.json", "data/Xe/nuclear/Xe131_DA_ENDFBVIII.txt"]
 
 
