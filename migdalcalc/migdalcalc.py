@@ -121,7 +121,7 @@ class migdalcalc():
         
         pref = 2*((m_e/one_eV)**2)*((1/(A+1))**2)
         
-        dE_max = kin.DeltaE_Max(A, En)
+        dE_max = (A/(A+1))*En
         
         def migdal_spectrum_HS(dE):
             return flux*pref*En*(sigma/m_n)*self.mig.dP_dDeltaE(dE, method)*(2 - ((A+1)/A)*(dE/En))*np.sqrt(np.heaviside(dE_max - dE, 1)*(1 - ((A+1)/A)*(dE/En)))

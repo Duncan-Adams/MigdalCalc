@@ -3,7 +3,7 @@
 from darkelf import darkelf
 import numpy as np
 
-Si = darkelf(mX = 1e8, mMed = 0.0, target = 'Si', filename = 'Si_mermin.dat', phonon_filename = 'Si_epsphonon_data6K.dat')
+Si = darkelf(mX = 1e8, mMed = 0.0, target = 'Si', filename = 'Si_gpaw_withLFE.dat', phonon_filename = 'Si_epsphonon_data6K.dat')
 
 #Darkelf evaluates their unscaled migdal probability at 1 eV of NR, not q_e
 #So we need to scale it to 1 ev of q_e

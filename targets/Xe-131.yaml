@@ -5,6 +5,8 @@ abundance : 0.212
 
 methods: 
  - ["ibe", "data/Xe/migdal/ibe.dat"]
+ - ["mpa", "data/Xe/migdal/mpa.dat"]
+ - ["mccabe", "data/Xe/migdal/mccabe.csv"]
 
 
 

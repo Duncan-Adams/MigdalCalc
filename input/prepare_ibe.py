@@ -1,4 +1,4 @@
-#prepare ibe.py - puts ibe data into the form used for migdal calc
+    #prepare ibe.py - puts ibe data into the form used for migdal calc
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.interpolate as interp

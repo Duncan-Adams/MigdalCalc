@@ -120,7 +120,7 @@ def to_precision(x,p):
 ############################################
 
 if __name__ == '__main__':
-    Energies = (2*1e3, 24*1e3, 2.507*1e6)
+    Energies = (1, 10, 100, 2*1e3, 24*1e3, 2.507*1e6)
     omegas = (10, 30, 100)
 
     angles = np.linspace(0, 180, 1000)
@@ -179,6 +179,8 @@ if __name__ == '__main__':
 
     
     plt.close()
+
+    exit()
 
     hanah_neutron_enegies = (24, 2507)
     hannah_omegas = (10, 100)

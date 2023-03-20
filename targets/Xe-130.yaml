@@ -5,10 +5,11 @@ abundance : 0.0407
 
 methods: 
  - ["ibe", "data/Xe/migdal/ibe.dat"]
-
+ - ["mpa", "data/Xe/migdal/mpa.dat"]
+ - ["mccabe", "data/Xe/migdal/mccabe.csv"]
 
 
 nuclear_datasets:
  - jendl40: ["data/Xe/nuclear/Xe130_SIG_jendl4.json", "data/Xe/nuclear/Xe130_DA_jendl4.txt"]
-
+ - ENDFBVIII: ["data/Xe/nuclear/Xe130_SIG_ENDFBVIII.json", "data/Xe/nuclear/Xe130_DA_ENDFBVIII.txt"]
 

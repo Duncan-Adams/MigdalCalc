@@ -3,6 +3,7 @@ from . import kinematics as kin
 import numpy as np
  
 import scipy.integrate as integrate
+import scipy.interpolate as interp
 import scipy.ndimage as ndi
 
 import os
