@@ -115,8 +115,6 @@ def to_precision(x,p):
 if __name__ == '__main__':
     Energies = 2, 23, 24, 2507
     angles = [10, 72]
-    # ~ Energies = [54]
-    # ~ angles_impact = [13, 20, 29, 37]
     
     plot_settings = {
         2: {

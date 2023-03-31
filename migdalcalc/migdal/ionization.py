@@ -150,24 +150,15 @@ def noblegas_electron_spectrum_binned(Eion_spectrum, Y, W, F, En, c, A, flux = 1
     last_bin = first_bin + (number_of_bins + 1)*e0
         
     bins = np.arange(first_bin, last_bin, e0)
-    n_e_bins = np.arange(n_e_base, number_of_bins + 1, 1, dtype=int)
-    print(bins)
-    print(n_e_bins)
-    
+    n_e_bins = np.arange(n_e_base, number_of_bins + 1, 1, dtype=int)    
     hist = []
 
-    tracker = 0
-    
     for n_e in n_e_bins:
         # lower_bound = np.round(bins[n_e - 1], 6)
         # upper_bound = np.round(bins[n_e], 6)
         lower_bound = n_e*e0
         upper_bound = (n_e+1)*e0
         rate = flux*integrate.quad(Eion_spectrum, lower_bound, upper_bound, limit=100, epsrel=1e-4)[0]
-
-        if(tracker == 0):
-            print(lower_bound, upper_bound, rate)
-            tracker = 1
 
         if rate < 1e-12:
             rate = 0
